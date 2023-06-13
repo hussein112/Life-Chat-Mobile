@@ -1,10 +1,9 @@
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler';
-
 import { terms, privacy_policy } from './legalPages';
 
-export function Terms() {
+export default function Terms() {
   return (
     <ScrollView>
       <View style={styles.container}>
