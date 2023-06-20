@@ -1,34 +1,38 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, View, Text, TextInput, Alert } from "react-native";
 import { Button } from '@rneui/base';
-import { useState, React } from "react";
+import { useState, React, useEffect } from "react";
 
-import {db} from './db';
+import * as DB from './db';
 
+DB.scaffoldDB();
+ 
 export default Profile = () => {
   const [userName, setUserName] = useState('');
   const [botName, setBotName] = useState('');
+  const [CSSRS, setCSSRS] = useState(0);
 
-  function saveData(bn, un){
-    if(bn !== '' && bn !== db['user'].bot_name){
-      saveBotName(bn);
-    }else if(un !== '' && un !== db['user'].user_name){
-      saveUserName(un);
-    }
-  }
+  useEffect(() => {
+    DB.getUser(1, (error, user) => {
+      if (error) {
+          console.log('Error retrieving row:', error);
+      } else {
+          setUserName(user.user_name);
+          setBotName(user.bot_name);
+          setCSSRS(user.CSSRS);
+      }
+    });
+  }, []);
 
-  function saveUserName(un){
-    db['user'].bot_name = un;
-    Alert.alert('User Name Updated', `I will call you ${un} from now!`, [
-      {text: 'OK'},
-    ]);
-  }
-
-  function saveBotName(bn){
-    db['user'].bot_name = bn;
-    Alert.alert('Bot Name Updated', `My name will be ${bn} from now!`, [
-      {text: 'OK'},
-    ]);
+  const saveData = () => {
+    data = { user_name: userName, bot_name: botName, 'CSSRS': CSSRS }
+    DB.updateUser(data)
+      .then(message => {
+        console.log(message);
+      })
+      .catch(error => {
+        console.log('Error updating row:', error);
+      });
   }
 
   return (
@@ -49,7 +53,7 @@ export default Profile = () => {
             onChangeText={setBotName}
             placeholder="Give me a name"
         />
-        <Button title="Save" onPress={() => {saveData(botName, userName)}} />
+        <Button title="Save" onPress={saveData} />
       </View>
 
       <View style={styles.container}>
